@@ -5,17 +5,20 @@ import { Construct } from "constructs";
 interface SwnApiGatewayProps {
     productMicroservice: IFunction;
     basketMicroservice: IFunction;
+    orderingMicroservice: IFunction;
 }
 
 export class SwnApiGateway extends Construct {
     public readonly productApiGateway: LambdaRestApi;
     public readonly basketApiGateway: LambdaRestApi;
+    public readonly orderingApiGateway: LambdaRestApi;
 
     constructor(scope: Construct, id: string, props: SwnApiGatewayProps) {
         super(scope, id);
 
         this.basketApiGateway = this.getBasketApi(props.basketMicroservice);
         this.productApiGateway = this.getProductApi(props.productMicroservice);
+        this.orderingApiGateway = this.getOrderingApi(props.orderingMicroservice);
     }
 
     private getBasketApi(basketMicroservice: IFunction) {
@@ -44,17 +47,33 @@ export class SwnApiGateway extends Construct {
             restApiName: 'Product Service',
             handler: productMicroservice,
             proxy: false
-          });
+        });
 
-          const product = apigw.root.addResource('product');
-          product.addMethod('GET'); //GET /product
-          product.addMethod('POST');//POST /product
+        const product = apigw.root.addResource('product');
+        product.addMethod('GET'); //GET /product
+        product.addMethod('POST');//POST /product
 
-          const singleProduct = product.addResource('{id}'); // /product/{id}
-          singleProduct.addMethod('GET');
-          singleProduct.addMethod('PUT');
-          singleProduct.addMethod('DELETE');
+        const singleProduct = product.addResource('{id}'); // /product/{id}
+        singleProduct.addMethod('GET');
+        singleProduct.addMethod('PUT');
+        singleProduct.addMethod('DELETE');
 
-          return apigw;
+        return apigw;
+    }
+
+    private getOrderingApi(orderingMicroservice: IFunction) {
+        const apigw = new LambdaRestApi(this, 'orderingApi', {
+            restApiName: 'Product Service',
+            handler: orderingMicroservice,
+            proxy: false
+        });
+
+        const order = apigw.root.addResource('order');
+        order.addMethod('GET'); //GET /order
+
+        const singleOrder = order.addResource('{userName}'); // /order/{userName}
+        singleOrder.addMethod('GET');
+
+        return apigw;
     }
 }
