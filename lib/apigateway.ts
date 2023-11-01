@@ -63,7 +63,7 @@ export class SwnApiGateway extends Construct {
 
     private getOrderingApi(orderingMicroservice: IFunction) {
         const apigw = new LambdaRestApi(this, 'orderingApi', {
-            restApiName: 'Product Service',
+            restApiName: 'Ordering Service',
             handler: orderingMicroservice,
             proxy: false
         });
